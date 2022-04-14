@@ -29,8 +29,10 @@ class CustomView(
     private var minuteHand = 0
     private var hourHand = 0
     private var isInit = false
-    private val fontSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP,
-        25f, resources.displayMetrics).toInt()
+    private val fontSize = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_SP,
+        30f, resources.displayMetrics
+    ).toInt()
 
     private val painter = Paint().apply {
         color = Color.BLACK
@@ -53,7 +55,7 @@ class CustomView(
     }
 
     private fun initClock() {
-        val numeralSpacing = 0     //цифровой интервал
+        val numeralSpacing = 0
         val padding = numeralSpacing + 100
         val min = min(height, width)
         radius = min / 2 - padding
@@ -91,28 +93,48 @@ class CustomView(
         val c: Calendar = Calendar.getInstance()
         var hour = c.get(Calendar.HOUR_OF_DAY)
         hour = if (hour > 12) hour - 12 else hour
-        //часовая стрелка
-        paint.strokeWidth = 20f
-        drawHand(canvas, ((hour + c.get(Calendar.MINUTE) / 60.0) * 5f).toInt(), true)
-        //минутная стрелка
-        paint.color = Color.RED
-        paint.strokeWidth = 20f
-        drawHand(canvas, c.get(Calendar.MINUTE), false)
-        //секундная стрелка
-        paint.color = Color.BLUE
-        paint.strokeWidth = 15f
-        drawHand(canvas, c.get(Calendar.SECOND), false)
+        drawHand(canvas, ((hour + c.get(Calendar.MINUTE) / 60.0) * 5f).toInt(), true, false)
+        drawHand(canvas, c.get(Calendar.MINUTE), false, false)
+        drawHand(canvas, c.get(Calendar.SECOND), false, isSecond = true)
     }
 
-    private fun drawHand(canvas: Canvas, loc: Int, isHour: Boolean) {
+    private fun drawHand(canvas: Canvas, loc: Int, isHour: Boolean, isSecond: Boolean) {
         val angle = PI * loc / 30 - PI / 2
         val handRadius =
             if (isHour) radius - minuteHand - hourHand else radius - minuteHand
-        canvas.drawLine(
-            (width / 2).toFloat(), (height / 2).toFloat(),
-            (width / 2 + cos(angle) * handRadius).toFloat(),
-            (height / 2 + sin(angle) * handRadius).toFloat(),
-            paint
-        )
+        when {
+            isHour -> {
+                paint.strokeWidth = 25f
+                canvas.drawLine(
+                    (width / 2 - cos(angle) * handRadius * 0.2).toFloat(),
+                    (height / 2 - sin(angle) * handRadius * 0.2).toFloat(),
+                    (width / 2 + cos(angle) * handRadius * 1.1).toFloat(),
+                    (height / 2 + sin(angle) * handRadius * 1.1).toFloat(),
+                    paint
+                )
+            }
+            isSecond -> {
+                paint.color = Color.BLUE
+                paint.strokeWidth = 18f
+                canvas.drawLine(
+                    (width / 2 - cos(angle) * handRadius * 0.15).toFloat(),
+                    (height / 2 - sin(angle) * handRadius * 0.15).toFloat(),
+                    (width / 2 + cos(angle) * handRadius * 0.6).toFloat(),
+                    (height / 2 + sin(angle) * handRadius * 0.6).toFloat(),
+                    paint
+                )
+            }
+            else -> {
+                paint.color = Color.RED
+                paint.strokeWidth = 20f
+                canvas.drawLine(
+                    (width / 2 - cos(angle) * handRadius * 0.15).toFloat(),
+                    (height / 2 - sin(angle) * handRadius * 0.15).toFloat(),
+                    (width / 2 + cos(angle) * handRadius * 0.8).toFloat(),
+                    (height / 2 + sin(angle) * handRadius * 0.8).toFloat(),
+                    paint
+                )
+            }
+        }
     }
 }
